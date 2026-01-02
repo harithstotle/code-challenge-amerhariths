@@ -1,6 +1,7 @@
 import { AppDataSource } from "../config/data-source";
 import { Client } from "../entities/Client";
 import { Repository } from "typeorm";
+import { ClientFilters } from "../types/client.types";
 
 export class ClientRepository {
   private repo: Repository<Client>;
@@ -14,8 +15,28 @@ export class ClientRepository {
     return this.repo.save(client);
   }
 
-  async findAll(filters?: Partial<Client>): Promise<Client[]> {
-    return this.repo.find({ where: filters });
+  async findAll(filters: ClientFilters) {
+    const qb = this.repo.createQueryBuilder("client");
+
+    if (filters.name) {
+      qb.andWhere("client.name ILIKE :name", {
+        name: `%${filters.name}%`,
+      });
+    }
+
+    if (filters.email) {
+      qb.andWhere("client.email ILIKE :email", {
+        email: `%${filters.email}%`,
+      });
+    }
+
+    if (filters.isActive !== undefined) {
+      qb.andWhere("client.isActive = :isActive", {
+        isActive: filters.isActive,
+      });
+    }
+
+    return qb.getMany();
   }
 
   async findById(id: string): Promise<Client | null> {

@@ -1,5 +1,6 @@
 import { ClientRepository } from "../repositories/client.repository";
 import { Client } from "../entities/Client";
+import { ClientFilters } from "../types/client.types";
 
 export class ClientService {
   private clientRepo = new ClientRepository();
@@ -11,7 +12,7 @@ export class ClientService {
     return this.clientRepo.create(data);
   }
 
-  async getClients(filters?: Partial<Client>): Promise<Client[]> {
+  async getClients(filters: ClientFilters) {
     return this.clientRepo.findAll(filters);
   }
 
